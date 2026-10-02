@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار إلكتروني - الرياضيات الصف السادس</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap');
+        
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: #f0f8ff;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            border-top: 5px solid #0056b3;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .header img {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid #0056b3;
+            margin-bottom: 15px;
+        }
+        .header h1 {
+            color: #0056b3;
+            margin: 5px 0;
+            font-size: 24px;
+        }
+        .header h2 {
+            color: #555;
+            font-size: 18px;
+            margin: 5px 0;
+        }
+        .info-bar {
+            display: flex;
+            justify-content: space-between;
+            background-color: #0056b3;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .question-box {
+            background-color: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: 0.3s;
+        }
+        .question-box:hover {
+            border-color: #0056b3;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+        }
+        .question-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #222;
+        }
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        @media (max-width: 600px) {
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+            .info-bar {
+                flex-direction: column;
+                text-align: center;
+                gap: 10px;
+            }
+        }
+        .option-label {
+            display: block;
+            background: #fff;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 10px 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 16px;
+        }
+        .option-label:hover {
+            background: #f1f7fd;
+            border-color: #0056b3;
+        }
+        .option-label input {
+            margin-left: 10px;
+            transform: scale(1.2);
+        }
+        .submit-btn {
+            display: block;
+            width: 100%;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 15px;
+            font-size: 20px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 30px;
+            transition: background 0.3s;
+        }
+        .submit-btn:hover {
+            background-color: #218838;
+        }
+        #result-container {
+            display: none;
+            text-align: center;
+            padding: 30px;
+            background: #e8f5e9;
+            border: 2px solid #4caf50;
+            border-radius: 10px;
+            margin-top: 30px;
+        }
+        .score-text {
+            font-size: 36px;
+            font-weight: bold;
+            color: #2e7d32;
+        }
+        .correct-answer {
+            background-color: #d4edda !important;
+            border-color: #28a745 !important;
+        }
+        .wrong-answer {
+            background-color: #f8d7da !important;
+            border-color: #dc3545 !important;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container" id="exam-container">
+    <div class="header">
+        <img src="./assets/asset.jpg" alt="مستر هاني شكري حجازي" onerror="this.src='https://via.placeholder.com/150?text=صورة+المعلم'">
+        <h1>اختبار إلكتروني - الوحدة الأولى</h1>
+        <h2>الصف السادس الابتدائي - رياضيات</h2>
+        <h3>إعداد: مستر هاني شكري حجازي</h3>
+    </div>
+
+    <div class="info-bar">
+        <div>الوقت المتبقي: <span id="timer">30:00</span></div>
+        <div>عدد الأسئلة: 30</div>
+        <div>الدرجة النهائية: 30</div>
+    </div>
+
+    <form id="quiz-form">
+        <div id="questions-container"></div>
+        <button type="button" class="submit-btn" onclick="submitExam()">إنهاء الاختبار</button>
+    </form>
+    
+    <div id="result-container">
+        <h2>انتهى الاختبار!</h2>
+        <div class="score-text">نتيجتك: <span id="final-score">0</span> / 30</div>
+        <p id="feedback-msg" style="font-size: 20px; margin-top:10px; font-weight:bold;"></p>
+        <button class="submit-btn" style="background-color:#007bff;" onclick="location.reload()">إعادة الاختبار</button>
+    </div>
+</div>
+
+<script>
+    const questionsData = [
+        { q: "العدد الذي أحاده صفر يقبل القسمة على:", options: ["2 فقط", "5 فقط", "10 فقط", "2 و 5 و 10 معاً"], answer: 3 },
+        { q: "أي من الأعداد الآتية يقبل القسمة على 3؟", options: ["14", "21", "25", "32"], answer: 1 },
+        { q: "العدد 342 يقبل القسمة على ........ بدون باقي.", options: ["3", "4", "5", "10"], answer: 0 },
+        { q: "كل الأعداد الزوجية تقبل القسمة على:", options: ["2", "3", "5", "7"], answer: 0 },
+        { q: "العدد يقبل القسمة على 5 إذا كان أحاده:", options: ["0 أو 2", "0 أو 5", "5 أو 2", "0 فقط"], answer: 1 },
+        { q: "العدد 102 يقبل القسمة على 2 و ... معاً", options: ["3", "4", "5", "10"], answer: 0 },
+        { q: "باقي قسمة 17 على 3 هو:", options: ["0", "1", "2", "3"], answer: 2 },
+        { q: "أصغر عدد يجب إضافته للعدد 14 ليقبل القسمة على 3 هو:", options: ["1", "2", "3", "4"], answer: 0 },
+        { q: "العدد 150 يقبل القسمة على 10 لأن:", options: ["أحاده صفر", "مجموع أرقامه 6", "أحاده 5", "يقبل القسمة على 3"], answer: 0 },
+        { q: "جميع الأعداد التي تقبل القسمة على 4 تقبل القسمة أيضاً على العدد:", options: ["2", "3", "5", "8"], answer: 0 },
+        { q: "العدد الذي جميع عوامله الأولية 2 ، 2 ، 3 هو:", options: ["12", "18", "24", "7"], answer: 0 },
+        { q: "العوامل الأولية للعدد 18 هي:", options: ["2, 9", "3, 6", "2, 3, 3", "2, 2, 3"], answer: 2 },
+        { q: "العامل المشترك الأكبر (ع.م.أ) للعددين 8 و 12 هو:", options: ["2", "4", "8", "24"], answer: 1 },
+        { q: "المضاعف المشترك الأصغر (م.م.أ) للعددين 6 و 8 هو:", options: ["2", "12", "24", "48"], answer: 2 },
+        { q: "(ع.م.أ) لعددين أوليين هو:", options: ["0", "1", "حاصل ضربهما", "مجموعهما"], answer: 1 },
+        { q: "(م.م.أ) لعددين أوليين هو:", options: ["0", "1", "حاصل ضربهما", "العدد الأكبر"], answer: 2 },
+        { q: "العدد الذي عوامله الأولية 2 ، 5 ، 7 هو:", options: ["14", "35", "70", "50"], answer: 2 },
+        { q: "(ع.م.أ) للعددين 15 و 25 هو:", options: ["5", "15", "25", "75"], answer: 0 },
+        { q: "(م.م.أ) للعددين 3 و 5 هو:", options: ["1", "3", "5", "15"], answer: 3 },
+        { q: "العددان 3 و 4 أوليان فيما بينهما لأن (ع.م.أ) لهما هو:", options: ["1", "2", "3", "12"], answer: 0 },
+        { q: "التعبير العددي الذي يكافئ 12 + 18 باستخدام (ع.م.أ) هو:", options: ["6(2+3)", "2(6+9)", "3(4+6)", "1(12+18)"], answer: 0 },
+        { q: "في التعبير العددي 5(2 + 4) ، العامل المشترك الأكبر المستخدم هو:", options: ["2", "4", "5", "10"], answer: 2 },
+        { q: "قيمة التعبير العددي 4(3 + 2) تساوي:", options: ["14", "20", "24", "9"], answer: 1 },
+        { q: "16 + 24 = 8( ... + ... )", options: ["2 + 3", "4 + 6", "1 + 3", "2 + 4"], answer: 0 },
+        { q: "لدى عبير 8 عبوات عصير و 12 قطعة حلوى، أكبر عدد من العلب المتماثلة يمكن تكوينها هو:", options: ["2", "4", "6", "8"], answer: 1 },
+        { q: "أصغر مقام مشترك للكسرين 1/3 و 2/5 هو:", options: ["3", "5", "8", "15"], answer: 3 },
+        { q: "ناتج جمع 1/2 + 1/4 =", options: ["2/6", "3/4", "2/4", "1/8"], answer: 1 },
+        { q: "ناتج طرح 5/7 - 2/7 =", options: ["3/7", "7/7", "3/14", "10/49"], answer: 0 },
+        { q: "1 - 2/9 =", options: ["7/9", "2/9", "9/9", "11/9"], answer: 0 },
+        { q: "1/3 + 1/6 =", options: ["2/9", "1/2", "2/6", "1/9"], answer: 1 }
+    ];
+
+    const container = document.getElementById('questions-container');
+    
+    questionsData.forEach((q, index) => {
+        let html = `
+        <div class="question-box" id="qbox-${index}">
+            <div class="question-title">س${index + 1}: ${q.q}</div>
+            <div class="options-grid">
+        `;
+        q.options.forEach((opt, optIndex) => {
+            html += `
+                <label class="option-label" id="label-${index}-${optIndex}">
+                    <input type="radio" name="q${index}" value="${optIndex}">
+                    ${opt}
+                </label>
+            `;
+        });
+        html += `</div></div>`;
+        container.innerHTML += html;
+    });
+
+    let timeLeft = 30 * 60; // 30 minutes in seconds
+    const timerElement = document.getElementById('timer');
+    let timerInterval;
+
+    function updateTimer() {
+        let minutes = Math.floor(timeLeft / 60);
+        let seconds = timeLeft % 60;
+        if(seconds < 10) seconds = '0' + seconds;
+        timerElement.textContent = `${minutes}:${seconds}`;
+        
+        if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            submitExam();
+        }
+        timeLeft--;
+    }
+
+    timerInterval = setInterval(updateTimer, 1000);
+
+    let isSubmitted = false;
+
+    function submitExam() {
+        if (isSubmitted) return;
+        isSubmitted = true;
+        clearInterval(timerInterval);
+        
+        let score = 0;
+        questionsData.forEach((q, index) => {
+            const selected = document.querySelector(`input[name="q${index}"]:checked`);
+            
+            // Highlight correct answer
+            document.getElementById(`label-${index}-${q.answer}`).classList.add('correct-answer');
+            
+            if (selected) {
+                const selectedVal = parseInt(selected.value);
+                if (selectedVal === q.answer) {
+                    score++;
+                } else {
+                    document.getElementById(`label-${index}-${selectedVal}`).classList.add('wrong-answer');
+                }
+            }
+            
+            // Disable inputs
+            const radios = document.querySelectorAll(`input[name="q${index}"]`);
+            radios.forEach(radio => radio.disabled = true);
+        });
+
+        document.getElementById('quiz-form').querySelector('.submit-btn').style.display = 'none';
+        document.getElementById('result-container').style.display = 'block';
+        document.getElementById('final-score').textContent = score;
+        
+        let feedback = document.getElementById('feedback-msg');
+        if(score === 30) {
+            feedback.textContent = "ممتاز! درجة نهائية.";
+            feedback.style.color = "#28a745";
+        } else if (score >= 20) {
+            feedback.textContent = "جيد جداً! مستوى رائع.";
+            feedback.style.color = "#17a2b8";
+        } else if (score >= 15) {
+            feedback.textContent = "نجاح، ولكن تحتاج للمزيد من التدريب.";
+            feedback.style.color = "#ffc107";
+        } else {
+            feedback.textContent = "لم تجتز الاختبار، يرجى مراجعة الوحدة الأولى والمحاولة مرة أخرى.";
+            feedback.style.color = "#dc3545";
+        }
+        
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+</script>
+
+</body>
+</html>
